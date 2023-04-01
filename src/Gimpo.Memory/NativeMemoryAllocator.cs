@@ -1,9 +1,11 @@
-﻿// Licensed to the Apache Software Foundation (ASF) under one or more
-// contributor license agreements. See the NOTICE file distributed with
-// this work for additional information regarding copyright ownership.
-// The ASF licenses this file to You under the Apache License, Version 2.0
-// (the "License"); you may not use this file except in compliance with
-// the License.  You may obtain a copy of the License at
+﻿// Copyright 2016-2019 The Apache Software Foundation (Apache Arrow)
+// Copyright 2023 Aleksei Smirnov
+//
+// See the NOTICE file distributed with this work for additional information
+// regarding copyright ownership.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
@@ -20,7 +22,7 @@ using System.Buffers;
 namespace Gimpo.Memory
 {
     /// <summary>
-    /// NativeMemoryAllocator class is used for allocation of contiguous block memory blocks in native memory.
+    /// Allocates contiguous memory blocks in native memory.
     /// </summary>
     public sealed class NativeMemoryAllocator : MemoryAllocator
     {

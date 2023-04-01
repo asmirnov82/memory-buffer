@@ -1,5 +1,4 @@
-﻿// Copyright 2016-2019 The Apache Software Foundation (Apache Arrow)
-// Copyright 2023 Aleksei Smirnov
+﻿// Copyright 2023 Aleksei Smirnov
 //
 // See the NOTICE file distributed with this work for additional information
 // regarding copyright ownership.
@@ -15,17 +14,5 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-using System;
-using System.Buffers;
-
-namespace Gimpo.Memory
-{
-    internal sealed class NullMemoryOwner<T> : IMemoryOwner<T>
-    {
-        public Memory<T> Memory => Memory<T>.Empty;
-
-        public void Dispose()
-        {
-        }
-    }
-}
+global using Xunit;
+global using FluentAssertions;
