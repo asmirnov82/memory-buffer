@@ -1,4 +1,4 @@
-﻿// Copyright 2016-2019 The Apache Software Foundation (Apache Arrow)
+// Copyright 2016-2019 The Apache Software Foundation (Apache Arrow)
 // Copyright 2023 Aleksei Smirnov
 //
 // See the NOTICE file distributed with this work for additional information
@@ -20,12 +20,27 @@ using System.Buffers;
 
 namespace Gimpo.Memory
 {
-    internal sealed class NullMemoryOwner<T> : IMemoryOwner<T>
-    {
-        public Memory<T> Memory => Memory<T>.Empty;
+	/// <summary>
+	/// Allocates memory in the managed heap using MemoryPool to reuse previously allocated resources.
+	/// Allows to minimize memory allocations and garbage collection overhead and hence improve performance.
+	/// </summary>
+	public sealed class ManagedMemoryAllocator : MemoryAllocator
+	{
+		protected override IMemoryOwner<T> AllocateInternal<T>(int length, bool skipZeroClear, out int bytesAllocated)
+		{
+			bytesAllocated = length;
 
-        public void Dispose()
-        {
-        }
-    }
+			var memory = MemoryPool<T>.Shared.Rent(length);
+			
+			if (!skipZeroClear)
+				ZeroMemory(memory.Memory);
+
+            return memory;
+		}
+
+		private void ZeroMemory<T>(Memory<T> memory) 
+		{
+			memory.Span.Clear();
+		}
+	}
 }

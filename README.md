@@ -1,2 +1,2 @@
 # Gimpo.Memory
-Provides a wrapper over acontiguous memory block and ability to allocate more than 4 Gb unmanaged memory with predefinded aligned.
+Provides a wrapper over a contiguous memory block and ability to allocate more than 4 Gb of unmanaged memory with predefinded aligned.

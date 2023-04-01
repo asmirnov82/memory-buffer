@@ -1,9 +1,11 @@
-﻿// Licensed to the Apache Software Foundation (ASF) under one or more
-// contributor license agreements. See the NOTICE file distributed with
-// this work for additional information regarding copyright ownership.
-// The ASF licenses this file to You under the Apache License, Version 2.0
-// (the "License"); you may not use this file except in compliance with
-// the License.  You may obtain a copy of the License at
+﻿// Copyright 2016-2019 The Apache Software Foundation (Apache Arrow)
+// Copyright 2023 Aleksei Smirnov
+//
+// See the NOTICE file distributed with this work for additional information
+// regarding copyright ownership.
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
 //     http://www.apache.org/licenses/LICENSE-2.0
 //
@@ -39,6 +41,9 @@ namespace Gimpo.Memory
         private int _retainedCount;
         private bool _disposed;
 
+        /// <summary>
+        ///  Gets the total amount of bytes allocated by this instance.
+        /// </summary>
         public long AllocatedBytes => _allocatedBytes;
 
         /// <summary>
@@ -79,7 +84,7 @@ namespace Gimpo.Memory
         }
 
         /// <summary>
-        /// Returns a memory span that wraps the underlying memory buffer and is aligned to preconfigured boundary.
+        /// Returns a memory span that wraps the underlying memory block and is aligned to preconfigured boundary.
         /// </summary>
         /// <returns></returns>
         public override unsafe Span<T> GetSpan()
