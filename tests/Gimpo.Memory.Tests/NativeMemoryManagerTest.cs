@@ -83,11 +83,9 @@ namespace Gimpo.Memory.Tests
         /// Ensure allocated memory block is initialized with zeroes.
         /// </summary>
         [Theory]
-        [InlineData(0, 32)]
         [InlineData(2, 32)]
         [InlineData(4, 32)]
         [InlineData(256, 32)]
-        [InlineData(0, 64)]
         [InlineData(2, 64)]
         [InlineData(4, 64)]
         [InlineData(256, 64)]
@@ -98,7 +96,6 @@ namespace Gimpo.Memory.Tests
             TestAllocatesCorrectAmountOfMemory<long>(count, aligment);
             TestAllocatesCorrectAmountOfMemory<double>(count, aligment);
             TestAllocatesCorrectAmountOfMemory<decimal>(count, aligment);
-
         }
 
         private unsafe void TestAllocatesCorrectAmountOfMemory<T>(int count, int aligment) where T : unmanaged

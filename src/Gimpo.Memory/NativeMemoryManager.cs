@@ -17,7 +17,6 @@
 
 using System;
 using System.Buffers;
-using System.Resources;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -33,11 +32,11 @@ namespace Gimpo.Memory
     public sealed class NativeMemoryManager<T> : MemoryManager<T>
     {
         private object _lock = new object();
-        private readonly int _offset;
         private readonly int _length;
         private readonly long _allocatedBytes;
 
         private IntPtr _ptr;
+        private IntPtr _alignedPtr;
         private int _retainedCount;
         private bool _disposed;
 
@@ -55,25 +54,27 @@ namespace Gimpo.Memory
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         public NativeMemoryManager(int length, int alignment = 64, bool skipZeroClear = false)
         {
-            long requiredBytes = (long)length * Unsafe.SizeOf<T>() + alignment;
+            if (length <= 0)
+                throw new ArgumentOutOfRangeException(nameof(length));
+
+            _length = length;
+
+            long requiredBytes = length * Unsafe.SizeOf<T>() + alignment;
 
             //Check x64 or x32 platform
             if (IntPtr.Size == 4 && requiredBytes > int.MaxValue)
                 throw new ArgumentOutOfRangeException(nameof(length), length, Resources.ExceededMemoryLimitOn32Bit);
 
             //TODO use NativeMemory.AlignedAlloc for .Net 6.0 and higher
-            IntPtr ptr = Marshal.AllocHGlobal(new IntPtr(requiredBytes));
-            int offset = (int)(alignment - (ptr.ToInt64() & (alignment - 1)));
-
-            _ptr = ptr;
-            _offset = offset;
-            _length = length;
-
+            _ptr = Marshal.AllocHGlobal(new IntPtr(requiredBytes));
+            var offset = (int)(alignment - (_ptr.ToInt64() & (alignment - 1)));
+            _alignedPtr = _ptr + offset;
+                                    
             GC.AddMemoryPressure(requiredBytes);
 
             // Ensure all allocated memory is zeroed.
             if (!skipZeroClear)
-                ZeroMemory(ptr, (uint)requiredBytes);
+                ZeroMemory(_ptr, (uint)requiredBytes);
 
             _allocatedBytes = requiredBytes;
         }
@@ -89,7 +90,7 @@ namespace Gimpo.Memory
         /// <returns></returns>
         public override unsafe Span<T> GetSpan()
         {
-            void* ptr = CalculatePointer(0);
+            void* ptr = _alignedPtr.ToPointer();
             return new Span<T>(ptr, _length);
         }
 
@@ -170,13 +171,14 @@ namespace Gimpo.Memory
                 //TODO Use NativeMemory.AlignedFree for .Net 6.0 and higher
                 Marshal.FreeHGlobal(_ptr);
                 Interlocked.Exchange(ref _ptr, IntPtr.Zero);
-                GC.RemoveMemoryPressure(_length * Unsafe.SizeOf<T>());
+
+                GC.RemoveMemoryPressure(_allocatedBytes);
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private unsafe void* CalculatePointer(int index) =>
-            (_ptr + _offset + Unsafe.SizeOf<T>() * index).ToPointer();
+            (_alignedPtr + Unsafe.SizeOf<T>() * index).ToPointer();
 
         unsafe private static void ZeroMemory(IntPtr ptr, uint byteCount) =>
             Unsafe.InitBlockUnaligned(ptr.ToPointer(), 0, byteCount);
