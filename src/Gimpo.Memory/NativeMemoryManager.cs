@@ -59,7 +59,7 @@ namespace Gimpo.Memory
 
             _length = length;
 
-            long requiredBytes = length * Unsafe.SizeOf<T>() + alignment;
+            long requiredBytes = (long)length * Unsafe.SizeOf<T>() + alignment;
 
             //Check x64 or x32 platform
             if (IntPtr.Size == 4 && requiredBytes > int.MaxValue)
@@ -74,7 +74,7 @@ namespace Gimpo.Memory
 
             // Ensure all allocated memory is zeroed.
             if (!skipZeroClear)
-                ZeroMemory(_ptr, (uint)requiredBytes);
+                ZeroMemory(_ptr, requiredBytes);
 
             _allocatedBytes = requiredBytes;
         }
@@ -180,7 +180,15 @@ namespace Gimpo.Memory
         private unsafe void* CalculatePointer(int index) =>
             (_alignedPtr + Unsafe.SizeOf<T>() * index).ToPointer();
 
-        unsafe private static void ZeroMemory(IntPtr ptr, uint byteCount) =>
-            Unsafe.InitBlockUnaligned(ptr.ToPointer(), 0, byteCount);
+        
+        unsafe private static void ZeroMemory(IntPtr ptr, long byteCount, int chunkSize = int.MaxValue)
+        {
+            long index = 0;
+            while (index < byteCount) 
+            {
+                Unsafe.InitBlockUnaligned((byte*)ptr.ToPointer() + index, 0, (uint)Math.Min(byteCount - index, chunkSize));
+                index += chunkSize;
+            }
+        }
     }
 }
