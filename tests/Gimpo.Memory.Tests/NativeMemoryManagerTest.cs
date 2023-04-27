@@ -61,7 +61,24 @@ namespace Gimpo.Memory.Tests
                 diffWithAligmentBoundary.Should().Be(0);
             }
         }
-        
+
+        /// <summary>
+        /// Ensure allocated memory block is initialized with zeroes.
+        /// </summary>
+        [Fact]
+        public void ConstructionTestIsZeroInitialized()
+        {
+            //Act
+            var memoryManager = new NativeMemoryManager<int>(10);
+            var span = memoryManager.Memory.Span;
+
+            //Assert
+            foreach (var value in span)
+            {
+                value.Should().Be(0);
+            }
+        }
+
         /// <summary>
         /// Ensure allocated memory block has correct size.
         /// </summary>
