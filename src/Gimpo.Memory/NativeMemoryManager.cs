@@ -59,7 +59,7 @@ namespace Gimpo.Memory
 
             _length = length;
 
-            long requiredBytes = (long)length * Unsafe.SizeOf<T>() + alignment;
+            long requiredBytes = length * Unsafe.SizeOf<T>() + alignment;
 
             //Check x64 or x32 platform
             if (IntPtr.Size == 4 && requiredBytes > int.MaxValue)
